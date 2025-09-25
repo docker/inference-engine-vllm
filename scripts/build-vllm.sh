@@ -56,7 +56,7 @@ preload_and_ulimit() {
 
   echo 'ulimit -c 0' >> ~/.bashrc
   export PATH="/opt/app-root/bin:$virtual_env/bin:/root/.local/bin:$PATH"
-  add_to_environment "PATH" "$PATH"
+  # add_to_environment "PATH" "$PATH"
 }
 
 pip_install() {
