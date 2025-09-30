@@ -39,7 +39,7 @@ jobs:
           
           - name: native_linux_cuda
             dockerfile: cuda.Dockerfile
-            context: ./native
+            context: .
             build_args: |
               CUDA_VERSION=12.9.0
               CUDA_IMAGE_VARIANT=ubuntu24.04
