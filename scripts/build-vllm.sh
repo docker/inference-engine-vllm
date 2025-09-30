@@ -116,12 +116,12 @@ main() {
   local virtual_env="/opt/venv"
   preload_and_ulimit
   uv venv --python 3.11 --seed "$virtual_env"
+  source "$virtual_env/bin/activate"
   uv pip install --upgrade pip
 
   local vllm_url="https://github.com/vllm-project/vllm"
   local commit="26b999c71ab28ae9708329003007979530638f79"
   git_clone_specific_commit "$vllm_url" "$commit"
-  # Note: git_clone_specific_commit already changes into the cloned directory
   set_vllm_env_vars
   pip_install_all
 
