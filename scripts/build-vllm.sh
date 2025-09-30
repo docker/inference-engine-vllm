@@ -74,11 +74,11 @@ pip_install() {
 
 pip_install_all() {
   if [ "$containerfile" = "generic" ]; then
-    pip_install requirements/cpu-build.txt
-    pip_install requirements/cpu.txt
+    pip_install vllm/requirements/cpu-build.txt
+    pip_install vllm/requirements/cpu.txt
   elif [ "$containerfile" = "cuda" ]; then
-    pip_install requirements/build.txt
-    pip_install requirements/cuda.txt
+    pip_install vllm/requirements/build.txt
+    pip_install vllm/requirements/cuda.txt
   fi
 }
 
@@ -126,11 +126,11 @@ main() {
 
   # Have had to set MAX_JOBS as low as 1 while building, even on machine
   # with 32GB RAM, kept running out of memory causing crashes.
+  cd vllm
   MAX_JOBS=2 python3 setup.py install
 
-  cd -
-  rm -rf vllm /root/.cache
+  cd /
+  rm -rf /vllm /root/.cache
 }
 
 main "$@"
-
