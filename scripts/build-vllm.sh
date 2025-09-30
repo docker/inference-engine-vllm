@@ -74,11 +74,11 @@ pip_install() {
 
 pip_install_all() {
   if [ "$containerfile" = "generic" ]; then
-    pip_install vllm/requirements/cpu-build.txt
-    pip_install vllm/requirements/cpu.txt
+    pip_install requirements/cpu-build.txt
+    pip_install requirements/cpu.txt
   elif [ "$containerfile" = "cuda" ]; then
-    pip_install vllm/requirements/build.txt
-    pip_install vllm/requirements/cuda.txt
+    pip_install requirements/build.txt
+    pip_install requirements/cuda.txt
   fi
 }
 
@@ -121,12 +121,12 @@ main() {
   local vllm_url="https://github.com/vllm-project/vllm"
   local commit="26b999c71ab28ae9708329003007979530638f79"
   git_clone_specific_commit "$vllm_url" "$commit"
+  # Note: git_clone_specific_commit already changes into the cloned directory
   set_vllm_env_vars
   pip_install_all
 
   # Have had to set MAX_JOBS as low as 1 while building, even on machine
   # with 32GB RAM, kept running out of memory causing crashes.
-  cd vllm
   MAX_JOBS=2 python3 setup.py install
 
   cd /
