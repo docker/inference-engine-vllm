@@ -24,19 +24,40 @@ on:
         type: string
 
 jobs:
-  build_native_linux_cpu:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: native_linux_cpu
+            dockerfile: generic.Dockerfile
+            context: .
+            build_args: |
+              BASE_IMAGE=ubuntu:24.04
+            output_dir: out-cpu
+          
+          - name: native_linux_cuda
+            dockerfile: cuda.Dockerfile
+            context: ./native
+            build_args: |
+              CUDA_VERSION=12.9.0
+              CUDA_IMAGE_VARIANT=ubuntu24.04
+            output_dir: out-cuda
+    
+    name: Build ${{ matrix.name }}
+    
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: 'true'
 
     - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
-        username: ${{ vars.DOCKERBUILDBOT_USERNAME }}
-        password: ${{ secrets.DOCKERBUILDBOT_WRITE_PAT }}
+        username: ${{ vars.DOCKERPUBLICBOT_USERNAME }}
+        password: ${{ secrets.DOCKERPUBLICBOT_WRITE_PAT }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -46,52 +67,14 @@ jobs:
         endpoint: "docker/make-product-smarter"
         install: true
 
-    - name: Build generic vLLM
+    - name: Build vLLM (${{ matrix.name }})
       uses: docker/build-push-action@v5
       with:
-        file: ${{ github.workspace }}generic.Dockerfile
+        file: ${{ github.workspace }}/${{ matrix.dockerfile }}
         platforms: linux/amd64, linux/arm64
-        context: ${{ github.workspace }}
-        build-args: |
-          "BASE_IMAGE="ubuntu:24.04"
+        context: ${{ github.workspace }}/${{ matrix.context }}
+        build-args: ${{ matrix.build_args }}
         push: false
         sbom: true
         provenance: mode=max
-        outputs: type=local,dest=${{ github.workspace }}/out
-
-  build_native_linux_cuda:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        submodules: 'true'
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ vars.DOCKERBUILDBOT_USERNAME }}
-        password: ${{ secrets.DOCKERBUILDBOT_WRITE_PAT }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        version: "lab:latest"
-        driver: cloud
-        endpoint: "docker/make-product-smarter"
-        install: true
-
-    - name: Build CUDA accelerated vLLM
-      uses: docker/build-push-action@v5
-      with:
-        file: ${{ github.workspace }}/cuda.Dockerfile
-        platforms: linux/amd64, linux/arm64
-        context: ${{ github.workspace }}/native
-        build-args: |
-          "CUDA_VERSION=12.9.0"
-          "CUDA_IMAGE_VARIANT=ubuntu24.04"
-        push: false
-        sbom: true
-        provenance: mode=max
-        outputs: type=local,dest=${{ github.workspace }}/out
-
+        outputs: type=local,dest=${{ github.workspace }}/${{ matrix.output_dir }}
