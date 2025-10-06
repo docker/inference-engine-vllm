@@ -127,7 +127,7 @@ main() {
 
   # Have had to set MAX_JOBS as low as 1 while building, even on machine
   # with 32GB RAM, kept running out of memory causing crashes.
-  MAX_JOBS=2 python3 setup.py install
+  MAX_JOBS=4 python3 setup.py install
 
   cd /
   rm -rf /vllm /root/.cache
