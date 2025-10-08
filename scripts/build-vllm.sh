@@ -67,7 +67,7 @@ pip_install() {
     url="$url/cu$(echo "$CUDA_VERSION" | cut -d. -f1,2 | tr -d '.')"
   fi
 
-  export UV_HTTP_TIMEOUT="20000"
+  export UV_HTTP_TIMEOUT="200000"
   export UV_INDEX_STRATEGY="unsafe-best-match"
   uv pip install -v -r "$1" --extra-index-url "$url"
 }
